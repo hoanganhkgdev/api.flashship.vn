@@ -89,7 +89,11 @@
         },
         "platform": {
             "php": "8.2.0",
-            "ext-redis": "5.3.7"
+            "ext-redis": "5.3.7",
+            "ext-mbstring": "8.2.0",
+            "ext-pdo_mysql": "8.2.0",
+            "ext-bcmath": "8.2.0",
+            "ext-xml": "8.2.0"
         }
     },
     "minimum-stability": "stable",
