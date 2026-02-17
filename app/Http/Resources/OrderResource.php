@@ -28,22 +28,22 @@ class OrderResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'created_at_human' => $this->created_at->diffForHumans(),
             'store' => new StoreResource($this->whenLoaded('store')),
-            'service' => [
+            'service' => $this->service ? [
                 'id' => $this->service->id,
                 'name' => $this->service->name,
                 'slug' => $this->service->slug,
-            ],
-            'user' => [
+            ] : null,
+            'user' => $this->user ? [
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'phone' => $this->user->phone,
-            ],
-            'driver' => $this->driver_id ? [
+            ] : null,
+            'driver' => ($this->driver_id && $this->driver) ? [
                 'id' => $this->driver->id,
                 'name' => $this->driver->name,
                 'phone' => $this->driver->phone,
-                'current_lat' => $this->driver->driver->current_lat,
-                'current_lng' => $this->driver->driver->current_lng,
+                'current_lat' => $this->driver->driver?->current_lat,
+                'current_lng' => $this->driver->driver?->current_lng,
             ] : null,
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
         ];
