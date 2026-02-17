@@ -15,58 +15,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Add initial services
-        \App\Models\Service::create([
-            'name' => 'Giao đồ ăn',
-            'slug' => 'food',
-            'icon' => 'fastfood',
-            'is_active' => true,
-        ]);
-
-        \App\Models\Service::create([
-            'name' => 'Xe ôm',
-            'slug' => 'bike',
-            'icon' => 'motorcycle',
-            'is_active' => true,
-        ]);
-
-        \App\Models\Service::create([
-            'name' => 'Giao hàng',
-            'slug' => 'delivery',
-            'icon' => 'local_shipping',
-            'is_active' => true,
-        ]);
-
-        // Create accounts for testing
-        \App\Models\User::create([
-            'name' => 'Admin FlashShip',
-            'email' => 'admin@flashship.vn',
-            'phone' => '0987654321',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-        ]);
-
-        \App\Models\User::create([
-            'name' => 'Tài Xế FlashShip',
-            'email' => 'driver@flashship.vn',
-            'phone' => '0909123456',
-            'password' => bcrypt('password'),
-            'role' => 'driver',
-        ]);
-
-        \App\Models\User::create([
-            'name' => 'Khách Hàng FlashShip',
-            'email' => 'user@flashship.vn',
-            'phone' => '0909888999',
-            'password' => bcrypt('password'),
-            'role' => 'user',
-            'balance' => 500000,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@flashship.vn'],
+            [
+                'name' => 'Administrator',
+                'password' => 'password',
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
 
         $this->call([
+            ServiceSeeder::class,
+            ServiceCategorySeeder::class,
             StoreSeeder::class,
-            ToppingSeeder::class,
-            MartSeeder::class,
+            ProductSeeder::class,
             PromotionSeeder::class,
         ]);
     }
