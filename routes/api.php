@@ -29,12 +29,14 @@ Route::get('/products', [ProductController::class, 'index']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/auth/firebase-login', [AuthController::class, 'firebaseLogin']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/user/avatar', [AuthController::class, 'updateAvatar']);
+    Route::post('/user/profile', [AuthController::class, 'updateProfile']);
     Route::post('/user/fcm-token', [AuthController::class, 'updateFcmToken']);
 
     Route::get('/orders', [OrderController::class, 'index']);

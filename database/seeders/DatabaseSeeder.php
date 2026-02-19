@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             StoreSeeder::class,
             ProductSeeder::class,
             PromotionSeeder::class,
+            NewsSeeder::class,
         ]);
     }
 }

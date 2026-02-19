@@ -8,6 +8,7 @@ use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -83,6 +84,92 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Firebase Login
+     */
+    public function firebaseLogin(Request $request)
+    {
+        $request->validate([
+            'id_token' => 'required|string',
+        ]);
+
+        try {
+            $auth = app('firebase.auth');
+            $verifiedIdToken = $auth->verifyIdToken($request->id_token);
+            $firebaseId = $verifiedIdToken->claims()->get('sub');
+            $firebaseUser = $auth->getUser($firebaseId);
+            $phone = $firebaseUser->phoneNumber;
+
+            if (!$phone) {
+                return response()->json(['message' => 'Phone number not found in token'], 400);
+            }
+
+            // Standardize phone number format if needed
+            // Firebase usually provides +84... format
+            
+            $user = User::where('phone', $phone)->first();
+            $isNewUser = false;
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => 'Khách hàng', // Default placeholder
+                    'phone' => $phone,
+                    'password' => Hash::make(Str::random(16)),
+                    'role' => 'customer',
+                ]);
+                $isNewUser = true;
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            if ($user->avatar) {
+                $user->avatar = asset('storage/' . $user->avatar);
+            }
+
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+                'is_new_user' => $isNewUser,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid token: ' . $e->getMessage()], 401);
+        }
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|nullable|email|unique:users,email,' . $user->id,
+        ]);
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+        
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+
+        $user->save();
+
+        if ($user->avatar) {
+            $user->avatar = asset('storage/' . $user->avatar);
+        }
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
             'user' => $user,
         ]);
     }
